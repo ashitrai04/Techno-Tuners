@@ -1,2 +1,5 @@
 # Techno-Tuners
-Source code for hackfest 23  by Techno Tuners
+Our device is developed to control the speed of the vehicle. It is based on Geo-Fencing. Geo-Fences are virtual boundaries which are created around a object. Geofences are built with mapping software, which allows the user to build the geo-fence across the chosen geographic region. It is composed of a set of coordinates, such as latitude and longitude, or, in the case of a circular geofence, one point that serves as the center and radius. With the help of Geo-Fencing we can detect the motion of the object withing the boundaries, through which our microcontroller decides that whether the object is under the area or not and if it is not then alert message is send and it slows the vehicle.
+
+Along with controlling speed it also alerts the driver behind 100 metres of an accident prone area. This enables the user to be careful while driving in that area. 
+It had additional features such as turning the vehicle on/off remotely. In case you forget the keys you can still access the vehicle by entering your password and it also helps in tracking vehicle in real-time. In case of any accident it sends an SOS message to the loved ones along with the loacion.
