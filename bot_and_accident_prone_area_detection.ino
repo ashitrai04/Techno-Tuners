@@ -1,4 +1,5 @@
-/*This code is used for accidental prone area detection and telegram bot creation.*/
+/*This code is used for accidental prone area detection and  creation of telegram bot. To make the system offline database of accident prone area is taken from Ministry of Road and Transportation.
+  GPS sends co-ordinates of vehicle(lattitude and longitude) and the distance between the input co-ordinates and co-ordinates of nearest accident prone area is calculated using distance formula. If the distance is less than 100m then system sends a alert message to the drive along with a beep sound. */
 #include <SPI.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
