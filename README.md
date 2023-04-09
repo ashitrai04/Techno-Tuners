@@ -30,9 +30,9 @@ We are working on two main problems which deals with the following problems:
   
   How it works?
   
-  We are using ESP-8266 microcontroller in which we are feeding the database of speed limit of areas. We are using virtual boundaries i.e. geo-fencing to         detect whether the device is inside the speed limit area or not. In geo-fencing we create a  polygon i.e.virtual boundaries, around the object and several 
-  points is taken from then polygon and angle formed from object and the co-ordinate of the point is calculated. If the sum of all such angles is less than       360, it implies that the object is under the area. If the angle is equal to 360, it implies that vehicle is exactly on the border and if it is greater then     360, it implies that vehicle is outside the area.
-  The given diagram will bring clarity in concept:
+   We are using ESP-8266 microcontroller in which we are feeding the database of speed limit of areas. We are using virtual boundaries i.e. geo-fencing to        detect whether the device is inside the speed limit area or not. In geo-fencing we create a  polygon i.e.virtual boundaries, around the object and several 
+   points is taken from then polygon and angle formed from object and the co-ordinate of the point is calculated. If the sum of all such angles is less than      360, it implies that the object is under the area. If the angle is equal to 360, it implies that vehicle is exactly on the border and if it is greater then    360, it implies that vehicle is outside the area.
+   The given diagram will bring clarity in concept:
    
    
    ![geo-fencing](https://user-images.githubusercontent.com/116189633/230754794-9fb52530-2238-49c5-b1bd-05657d83c21c.gif)
@@ -41,6 +41,10 @@ We are working on two main problems which deals with the following problems:
 2. Accident Prone Area Detection
    We have created a database of accident prone areas stated by Ministry of Roads and Transportation. Using GPS location of the vehicle is tracked down which  
    is compared with the database. If the vehicle is near any accidental prone area(100m behind the area), driver gets a alert message followed by a beep sound.    Alert message is displayed on the OLED display used.
+   
+   How it works?
+   
+   GPS continuously send the co-ordinates of the vehicle(lattitude and longitude) as data. This data is compared with the data of the offline database of          accidental prone areas. The distance between the input co-ordinate and co-ordinate of nearest accidental prone area is calculated using distance formula. If    the distance is less than 100m then system warns the driver about the accident prone area with a beep sound.  
    
 3. Controlling from Remote Place
    There are two ways to control the vehicle from remote place--(a) Using Telegram Bot
