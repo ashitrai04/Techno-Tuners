@@ -1,0 +1,359 @@
+
+
+
+#include <TinyGPS++.h>
+#include <SoftwareSerial.h>
+#include <ESP8266WiFi.h>
+#include <WiFiClient.h>
+#include <ESP8266WebServer.h>
+
+ 
+#define M_PI 3.14159265358979323846264338327950288
+#define rxGPS 12 // RX TO D7
+#define txGPS 13 //TX TO D6
+ const int relay =  16;
+const double fences[1][10][2] = {{{23.816315, 86.441752},
+                                  {23.816444, 86.442211},
+                                  {23.816207, 86.442650},
+                                  {23.815856, 86.442842},
+                                  {23.815422, 86.442795},
+                                  {23.815175, 86.442579},
+                                  {23.815046, 86.442117},
+                                  {23.815228, 86.441337},
+                                  {23.815637, 86.441188},
+                                  {23.816074, 86.441302},}
+};
+ 
+/*Variables to store AP credentials*/
+String ssid = "";
+String password = "";
+int WiFiConnectMode = 1; 
+ 
+double latitude, longitude;
+int sat;
+String date;
+char lati[12];
+char longi[12];
+int targetStatus,speedkm;
+int fence;
+char cumulativeAngle[12];
+int deviceStatus = 0;
+ int speedlimit = 1;
+SoftwareSerial gpsSerial(rxGPS, txGPS);
+TinyGPSPlus gps;
+ESP8266WebServer gpsServer(80);
+ 
+void connectWifi();
+void updateLatLon();
+void pip();
+void handleRoot();
+void fenceSelect();
+void gps_data();
+const char webpage[] PROGMEM = R"=====(
+<!DOCTYPE html>
+<html>
+  <style type="text/css">
+    body {
+        background-image: url('https://images.unsplash.com/photo-1488866022504-f2584929ca5f?auto=format&fit=crop&w=1486&q=80&ixid=dW5zcGxhc2guY29tOzs7Ozs%3D');
+        background-size: cover;
+        margin: 0;
+        background-repeat: no-repeat;
+        background-position: 0 0;
+        transition: 2s cubic-bezier(0.645, 0.045, 0.355, 1);
+        color :white;
+    }
+ 
+    hr {
+        visibility: visible;
+        border: 0;
+        height: 1px;
+        background-image: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0));
+    }
+ 
+    .button {
+      background-color: rgba(55, 72, 87, 0.8); 
+      border: none;
+      color: white;
+      padding: 12px 20px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      border-radius: 12px;
+      font-size: 16px;
+    }
+  </style>
+ 
+  <body style="background-color: #ffffff ; font-family:verdana">
+    
+    <center>
+      <p>Vehicle Status <span id = "Device_status" style="color : rgba(0, 255, 106, 0.857);">offline</span></p>
+      <hr style = "width: 70%;">
+      <h1>Dashboard</h1>
+      <hr style = "width: 70%;">
+      <div>
+        <button class="button" onclick="send(1)">SPEED LIMIT AREA</button>
+        <button class="button" onclick="send(2)">OUTSIDE SPEED LIMIT AREA</button>
+        <p>Selected Area: <span id="fence_id">0</span><br></p>
+      </div>
+      <hr style = "width: 40%;">
+      <div style="background-color: rgba(89, 154, 211, 0.3);; width: 30%; border-radius: 12px;">
+          <table style="text-align: center; " >
+              <tr>
+                  <th style="padding: 0 20px 0 20px;">Date</th>
+                  <th style="padding: 0 20px 0 20px;">No.of Sats</th>
+              </tr>
+              <tr>
+                  <td><span id="date">0</span><br></td>
+                  <td><span id="sats">0</span><br></td>
+              </tr>
+          </table>
+      </div>
+      <hr style = "width: 40%;">
+      <div>
+        <div style="background-color: rgba(89, 154, 211, 0.3); display: inline-block; width: 10%; border-radius: 12px;">
+            <table style="text-align: center; " >
+                <tr>
+                    <th>Latitude</th>
+                </tr>
+                <tr>
+                    <td><span id="lat_val">0</span><br></td>
+                </tr>
+                <tr>
+                    <th>Longitude</th>
+                </tr>
+                <tr>
+                    <td><span id="lon_val">0</span><br></td>
+                </tr>
+            </table>
+          </div>
+          <div style="background-color: rgba(89, 154, 211, 0.3); display: inline-block; width: 15%; border-radius: 12px;">
+            <table style="text-align: center; " >
+                <tr>
+                    <th>Target Status</th>
+                </tr>
+                <tr>
+                    <td><span id="target_status">0</span><br></td>
+                </tr>
+                <tr>
+                    <th>Cumulative Angle</th>
+                </tr>
+                <tr>
+                    <td><span id="angle">0</span><br></td>
+                </tr>
+            </table>
+          </div>
+          <hr style = "width: 40%;">
+      <div>
+        <div style="background-color: rgba(89, 154, 211, 0.3); display: inline-block; width: 10%; border-radius: 12px;">
+            <table style="text-align: center; " >
+                <tr>
+                    <th>SPEED IN KMPH</th>
+                </tr>
+                <tr>
+                    <td><span id="speedkm">0</span><br></td>
+                </tr>
+                <tr>
+                    <th>SPEED LIMIT</th>
+                </tr>
+                <tr>
+                    <td><span id="speedlimit">0</span><br></td>
+                </tr>
+            </table>
+          </div>
+      </div>
+      <hr style = "width: 70%;">
+      <script>
+        function send(fence_val) {
+          var xhttp = new XMLHttpRequest();
+          xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+              document.getElementById("fence_id").innerHTML = this.responseText;
+            }
+          };
+          xhttp.open("GET", "status?fenceValue="+fence_val, true);
+          xhttp.send();
+        }
+ 
+        setInterval(function() {getData();}, 2000); 
+ 
+        function getData() {
+          var xhttp = new XMLHttpRequest();
+          xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+              const data = this.responseText.split("#");
+              document.getElementById("sats").innerHTML = data[0];
+              document.getElementById("date").innerHTML = data[1];
+              document.getElementById("lat_val").innerHTML = data[2];
+              document.getElementById("lon_val").innerHTML = data[3];
+              document.getElementById("target_status").innerHTML = data[4];
+              document.getElementById("angle").innerHTML = data[5];  
+              document.getElementById("speedkm").innerHTML = data[6]; 
+              document.getElementById("speedlimit").innerHTML = data[7]; 
+              document.getElementById("Device_status").innerHTML = data[8];   
+            }
+          };
+          xhttp.open("GET", "values", true);
+          xhttp.send();
+        }
+      </script>
+    </center>
+  </body>
+</html>
+)=====";
+void setup(){
+    Serial.begin(9600);
+    gpsSerial.begin(9600);
+    connectWifi();
+    pinMode(relay, OUTPUT);
+   
+    gpsServer.on("/", handleRoot);
+    gpsServer.on("/status", fenceSelect);
+    gpsServer.on("/values", gps_data);
+    gpsServer.begin();
+}
+ 
+void loop(){
+  
+    while (gpsSerial.available()){
+        deviceStatus = 1;
+        updateLatLon();
+        pip();        
+        gpsServer.handleClient();
+    }
+    gpsServer.handleClient();
+}
+ 
+void connectWifi(){
+    if(WiFiConnectMode == 0){
+     
+        WiFi.mode(WIFI_STA);
+ 
+        // Begin the smart configuration to get the Access Point credentials
+        WiFi.beginSmartConfig();
+        Serial.println("------------------------------------------------");
+        Serial.print("Waiting for SmartConfig ");
+        while (!WiFi.smartConfigDone()) {
+            delay(250);
+            Serial.print(".");
+        }
+        Serial.println();
+        Serial.println("SmartConfig done.");
+ 
+        // Print the AP credentials to the serial monitor
+        ssid = WiFi.SSID();
+        password = WiFi.psk();
+       /* Serial.println("------------------------------------------------");
+        Serial.print("Acesspoint SSID : ");
+        Serial.println(ssid);
+        Serial.print("Acesspoint password : ");
+        Serial.println(password);
+        Serial.println("------------------------------------------------");
+ 
+        // Connect the ESP12E to the AP
+        Serial.print("Connecting to Access Point ");*/
+        while (WiFi.status() != WL_CONNECTED) {
+            delay(100);
+            Serial.print(".");
+        }
+       /* Serial.println();
+        Serial.println("Connected.");
+        Serial.println("------------------------------------------------");
+        Serial.print("IP Address: ");
+        Serial.println(WiFi.localIP());
+        Serial.println("------------------------------------------------");*/
+    }
+    else{
+        String ssid = "iPhone";
+        String password = "ashit@123";
+        WiFi.begin(ssid,password);
+        Serial.println("------------------------------------------------");
+        Serial.print("Connecting to Access Point ");
+        while (WiFi.status() != WL_CONNECTED) {
+            delay(500);
+            Serial.print(".");
+        }
+        Serial.println("");
+        Serial.print("Connected to ");
+        Serial.println(ssid);
+        Serial.print("IP address: ");
+        Serial.println(WiFi.localIP());
+        Serial.println("------------------------------------------------");
+    }
+}
+ 
+void updateLatLon(){
+   
+    if (gps.encode(gpsSerial.read()))
+    {  
+      //Serial.println("FunCheck2");
+      sat = gps.satellites.value();
+      latitude = gps.location.lat();
+      longitude = gps.location.lng();
+      speedkm=(gps.speed.kmph());
+      dtostrf(latitude,9,7,lati);
+      dtostrf(longitude,9,7,longi);
+     
+      date = String(gps.date.day())+"/"+gps.date.month()+"/"+gps.date.year();
+    
+ 
+
+    }
+}
+ 
+void pip(){
+    int fenceSize = sizeof(fences[fence - 1])/sizeof(fences[fence - 1][0]);
+    double vectors[fenceSize][2];
+    for(int i = 0; i < fenceSize; i++){
+        vectors[i][0] = fences[fence - 1][i][0] - latitude;
+        vectors[i][1] = fences[fence - 1][i][1] - longitude;
+    }
+    double angle = 0;
+    double num, den;
+    for(int i = 0; i < fenceSize; i++){
+        num = (vectors[i%fenceSize][0])*(vectors[(i+1)%fenceSize][0])+ (vectors[i%fenceSize][1])*(vectors[(i+1)%fenceSize][1]);
+        den = (sqrt(pow(vectors[i%fenceSize][0],2) + pow(vectors[i%fenceSize][1],2)))*(sqrt(pow(vectors[(i+1)%fenceSize][0],2) + pow(vectors[(i+1)%fenceSize][1],2)));
+        angle = angle + (180*acos(num/den)/M_PI);
+    }
+    dtostrf(angle,9,7,cumulativeAngle);
+    if(angle > 355 && angle < 365)
+        targetStatus = 1;
+    else
+        targetStatus = 0;
+}
+
+void handleRoot(){
+    String s = webpage;
+    gpsServer.send(200, "text/html", s);
+}
+
+void fenceSelect(){
+    fence = gpsServer.arg("fenceValue").toInt();
+    gpsServer.send(200, "text/plane", String(fence));
+}
+
+void gps_data(){
+    String payload = String(sat) + "#" + date + "#" + lati + "#" + longi ;
+    if(targetStatus == 0)
+        payload = payload + "#outside";
+    else 
+        payload = payload + "#inside";
+        payload = payload + "#" + cumulativeAngle;
+        payload = payload + "#" + String(speedkm);
+    if(targetStatus == 0)
+        payload = payload + "#0";
+    else
+        payload = payload + "#" + String(speedlimit); 
+    if(deviceStatus == 0)
+        payload = payload + "#offline";
+    else
+        payload = payload + "#online";
+    gpsServer.send(200, "text/plane", payload);
+     if(targetStatus != 0 && speedlimit<speedkm)
+  {
+  digitalWrite(relay, HIGH);
+  }
+    else {
+   digitalWrite(relay, LOW);
+   }
+   
+}
