@@ -4,13 +4,13 @@
 
 
 ## Problem Statement
-We are working on two main problems which deals with the following problems:
+We are working on two main problems which are:
 
-1.The first problem pertains to the prevalent issue of speeding in our country, which accounts for a significant 60% of all accidents.
-  Despite the government's efforts to enforce speed limits in designated areas, most people do not comply with these regulations and are often penalized for     breaking the rule. Sometimes thhis problem affects people who are unaware with the speed limit system. Our focus is to find effective solutions to minimize     the incidence of overspeeding and make our roads safer for everyone.
+1.The first problem pertains to the prevalent issue of over-speeding in our country, which accounts for a significant 60% of all accidents.
+  Despite the government's efforts to enforce speed limits in designated areas, most people do not comply with these regulations and are often penalized for     breaking the rule. Sometimes this problem affects people who are unaware with the speed limit system. Our focus is to find effective solutions to minimize     the incidence of overspeeding and make our roads safer for everyone.
 
 
-2. There are areas which often faces accidents and such areas are known as accidental prone areas. In our country most of the heavy vehicle drives meets accident at acciddent prone areas. This problem is also faced by vehicles which mostly runs during night e.g.transportation vehicles.
+2. There are areas where accidents occur often and such areas are known as accidental prone areas. In our country most of the heavy vehicle drives meets          accident at accident prone areas. This problem is also faced by vehicles which mostly runs during night e.g.transportation vehicles.
 
 
 ##Solution
