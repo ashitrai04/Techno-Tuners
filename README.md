@@ -5,6 +5,7 @@
 
 ## Problem Statement
 We are working on two main problems which deals with the following problems:
+
 1.The first problem pertains to the prevalent issue of speeding in our country, which accounts for a significant 60% of all accidents.
   Despite the government's efforts to enforce speed limits in designated areas, most people do not comply with these regulations and are often penalized for     breaking the rule. Sometimes thhis problem affects people who are unaware with the speed limit system. Our focus is to find effective solutions to minimize     the incidence of overspeeding and make our roads safer for everyone.
 
@@ -30,6 +31,8 @@ We are working on two main problems which deals with the following problems:
    We are using ESP-8266 microcontroller in which we are feeding the database of speed limit of areas. We are using virtual boundaries i.e. geo-fencing to        detect whether the device is inside the speed limit area or not. In geo-fencing we create a  polygon i.e.virtual boundaries, around the object and several 
    points is taken from then polygon and angle formed from object and the co-ordinate of the point is calculated. If the sum of all such angles is less than      360, it implies that the object is under the area. If the angle is equal to 360, it implies that vehicle is exactly on the border and if it is greater then    360, it implies that vehicle is outside the area.
    The given diagram will bring clarity in concept:
+   
+   
    ![geo-fencing](https://user-images.githubusercontent.com/116189633/230754794-9fb52530-2238-49c5-b1bd-05657d83c21c.gif)
 
 
