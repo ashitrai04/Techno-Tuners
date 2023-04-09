@@ -1,3 +1,4 @@
+/*This code is used for accidental prone area detection and telegram bot creation.*/
 #include <SPI.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
@@ -23,16 +24,16 @@ const int vehicle = 0;  //D3-auto-mode
 
 String latitude, longitude;;
 #include "CTBot.h"
-CTBot myBot;                            // REPLACE myPassword YOUR WIFI PASSWORD, IF ANY
+CTBot myBot;  
 String token = "6199952557:AAEfvUWheWVgmqXJ6YFjhhZnLwGd6N1W_4U";   // REPLACE myToken WITH YOUR TELEGRAM BOT TOKEN
-                     // the onboard ESP8266 LED.    
+                     
                
 #include <SoftwareSerial.h>
 #define LED_PIN 16  //buzzer
 #include <ESP8266WiFi.h>
 #include <Wire.h>                      // The serial connection to the GPS device
-const char* ssid = "iPhone";
-const char* password = "ashit@123";
+const char* ssid = "iPhone";          // REPLACE myPassword YOUR WIFI PASSWORD, IF ANY
+const char* password = "ashit@123";    
 void accident();
 void setup()
 {
@@ -47,9 +48,6 @@ void setup()
    display.clearDisplay();
    display.display();
    
-   /*
-   Serial.print("Connecting to ");
-   Serial.println(ssid); */
    WiFi.begin(ssid, password);
    while (WiFi.status() != WL_CONNECTED)
    {   
@@ -90,14 +88,8 @@ void loop()
       double lat = gps.location.lat(), lng = gps.location.lng(), dist = calculateDistance(lat, lng, targetLat, targetLng);
       latitude = String(gps.location.lat(), 6);
       longitude = String(gps.location.lng(), 6);
-     //Serial.print("Latitude: ");
       Serial.print(lat, 6);
-      //Serial.print(", Longitude: ");
       Serial.print(lng, 6);
-      //Serial.print(", Distance: ");
-      //Serial.print(dist);
-      //Serial.println(" meters");
-      
       if (dist <= 100.0) {
         digitalWrite(ledPin, HIGH); 
         delay(10000);
@@ -111,7 +103,6 @@ void loop()
 
   TBMessage msg;
 
-	// if there is an incoming message...
 	while (CTBotMessageText == myBot.getNewMessage(msg)) {
 
 		if (msg.text.equalsIgnoreCase("VEHICLE ON")) {              // if the received message is "LIGHT ON"...
