@@ -1,0 +1,20 @@
+#include<RF24.h>
+RF24 radio (4, 5); // (CB, CSN)
+long weight;
+void setup(){
+delay(1000);
+Serial.begin(9600);
+Serial.println("setup");
+radio.begin();
+radio.setChannel(5); // Channel (0 ... 127) radio.getDataRate
+radio.setDataRate   (RF24_1MBPS); // RE24_250KBPS, RE24_1MBPS, RE24_2MBE
+radio.setPALevel   (RF24_PA_HIGH); //RF24 PA. MIN=-18dBm, R24 PA LOW=- 12
+radio.openReadingPipe (1, 0x1234567890LL); // 0x1234567890
+radio.startListening ();
+}
+void loop(){
+if(radio.available()){
+radio.read(&weight, sizeof(weight));
+Serial.println(weight);
+}
+}
