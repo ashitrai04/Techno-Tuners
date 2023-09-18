@@ -1,0 +1,108 @@
+
+#include <SPI.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#define OLED_RESET -1 
+#define OLED_ADDR 0x3C 
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 64 // OLED display height, in pixels
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+
+#include <SoftwareSerial.h>
+#include <TinyGPS++.h>
+
+SoftwareSerial gpsSerial(12, 13); // RX, TX pins for GPS module
+TinyGPSPlus gps; // GPS object
+
+const char* targetCoords[] = { // target coordinates in "latitude,longitude" format
+  "30.747915,76.633806",
+  "30.748059,76.633653",
+  "30.748201,76.633626",
+  "30.748279,76.633801",
+  "30.748219,76.634114",
+  "30.748013,76.634314",
+  "30.747784,76.634294",
+  "30.747718,76.634003",
+  "30.747811,76.633874",
+  "30.747915,76.633806"
+};
+
+const int numTargets = 10; // number of target coordinates
+double targetLat[10]; // target latitudes in degrees
+double targetLng[10]; // target longitudes in degrees
+
+const int relayPin = 16; // pin number for relay
+int speedlimit = 40;
+void setup() {
+  pinMode(relayPin, OUTPUT); // set relay pin as output
+  digitalWrite(relayPin, LOW); // turn off relay
+  Serial.begin(9600); // initialize serial communication
+  gpsSerial.begin(9600); // initialize GPS serial communication
+  display.clearDisplay();
+  display.display();
+  // convert target coordinates to latitudes and longitudes
+  for (int i = 0; i < numTargets; i++) {
+    char* token = strtok((char*)targetCoords[i], ",");
+    targetLat[i] = atof(token);
+    token = strtok(NULL, ",");
+    targetLng[i] = atof(token);
+  }
+}
+
+void loop() {
+  while (gpsSerial.available() > 0) {
+    if (gps.encode(gpsSerial.read())) {
+      double lat = gps.location.lat();
+      double lng = gps.location.lng();
+      double speed = gps.speed.kmph();
+      bool insidePoly = isInsidePolygon(lat, lng, targetLat, targetLng, numTargets);
+      Serial.print("Latitude: ");
+      Serial.print(lat, 6);
+      Serial.print(", Longitude: ");
+      Serial.print(lng, 6);
+      if (insidePoly && speed > speedlimit) {
+
+        digitalWrite(relayPin, HIGH); // turn on relay
+        Serial.println(", Inside Polygon, Speed > 40 km/h");
+         display.clearDisplay();
+  display.setTextSize(3);
+  display.setTextColor(WHITE);
+  display.setCursor(27, 2);
+  display.print(gps.speed.kmph());
+  display.setTextSize(1);
+  display.setCursor(4, 30);
+  display.print("SPEED LIMIT");
+  display.setTextSize(2);
+  display.setCursor(5, 40);
+  display.print(speedlimit);
+  display.display();
+      } else {
+        digitalWrite(relayPin, LOW); // turn off relay
+        Serial.println(", Outside Polygon or Speed <= 40 km/h");
+         display.clearDisplay();
+  display.setTextSize(3);
+  display.setTextColor(WHITE);
+  display.setCursor(27, 2);
+  display.print(gps.speed.kmph());
+  display.setTextSize(1);
+  display.setCursor(0, 50);
+  display.print("SPEED KMPH");
+  display.display();
+      }
+    }
+  }
+}
+
+bool isInsidePolygon(double lat, double lng, const double* polyLat, const double* polyLng, int polySides) {
+  int i, j;
+  bool c = false;
+  for (i = 0, j = polySides-1; i < polySides; j = i++) {
+    if ((((polyLat[i]<=lat) && (lat<polyLat[j])) ||
+         ((polyLat[j]<=lat) && (lat<polyLat[i]))) &&
+        (lng < (polyLng[j]-polyLng[i]) * (lat-polyLat[i]) / (polyLat[j]-polyLat[i]) + polyLng[i]))
+      c = !c;
+  }
+  return c;
+}
