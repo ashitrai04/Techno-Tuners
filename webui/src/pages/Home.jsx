@@ -80,16 +80,16 @@ const Home = () => {
   return (
     <>
       <Sidebar />
-      {/* <div className="flex flex-col lg:flex-row justify-center items-center"> */}
-        {/* <Map location={location}/> */}
+      <div className="flex flex-col lg:flex-row justify-center items-center">
+{/*         <Map location={location}/> */}
         <Map />
         {/* 550 */}
-        {/* {windowSize[0] >= 550 ? (
+        {windowSize[0] >= 550 ? (
           <SpeedoMeter targetPercentage={speed} />
         ) : (
           <SpeedoMeterMobile targetPercentage={speed} />
         )}
-      </div> */}
+      </div>
     </>
   );
 };
