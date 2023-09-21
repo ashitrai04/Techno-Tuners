@@ -10,7 +10,7 @@
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-
+// Imports
 #include <SoftwareSerial.h>
 #include <TinyGPS++.h>
 #include <math.h>
