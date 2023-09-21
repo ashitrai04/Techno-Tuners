@@ -7,6 +7,8 @@
 *.dylib
 *.dll
 
+node_modules
+
 # Compiled Static libraries
 *.a
 *.lib
