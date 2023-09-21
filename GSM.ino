@@ -7,7 +7,7 @@
 #define SCREEN_HEIGHT 64 
 
 
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1); //SCK to D22 and SDA to D21
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1); //SCK to D22 and SDA to D21.
 
 
 #include <HardwareSerial.h>
