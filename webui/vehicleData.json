@@ -1,0 +1,35 @@
+{
+    "yourVehicle": {
+        "id": 1,
+        "latitude": 30.727245803223305,
+        "longitude": 76.77243474128477,
+        "name": "Your Vehicle",
+        "speed": 0
+    },
+    "specialVehicle": {
+        "id": 2,
+        "latitude": 30.726070378541632,
+        "longitude": 76.77321126854306,
+        "name": "Ambulance"
+    },
+    "vehicles": [
+        {
+            "id": 10,
+            "latitude": 30.726153203534,
+            "longitude": 76.7720026527775,
+            "name": "Vehicle A"
+        },
+        {
+            "id": 11,
+            "latitude": 30.727350870633668,
+            "longitude": 76.77259972303668,
+            "name": "Vehicle B"
+        },
+        {
+            "id": 12,
+            "latitude": 30.72802511046069,
+            "longitude": 76.774065524408,
+            "name": "Vehicle B"
+        }
+    ]
+}

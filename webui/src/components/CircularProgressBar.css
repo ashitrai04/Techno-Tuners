@@ -1,0 +1,6 @@
+.progress-bar {
+  transform: rotate(150deg); 
+  transform-origin: 50% 50%;
+  transition: stroke-dashoffset 0.5s;
+  background: red;
+}
