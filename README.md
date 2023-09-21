@@ -1,5 +1,5 @@
 # Techno-Tuners
-## DEVICE:
+## DEVICE :
 ![device](https://user-images.githubusercontent.com/116189633/230726565-ed604742-2a03-4ad1-b651-b5a2efb06dde.jpg)
 
 
